@@ -1,15 +1,55 @@
 const resultsSection = document.getElementById('results-section');
+const searchTypeRadios = document.querySelectorAll('input[name="search-type"]');
 document.addEventListener('DOMContentLoaded', () => {
-  const searchForm = document.querySelector(`form`);
-  searchForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const searchBox = document.querySelector('#search_box');
-    console.log(searchBox);
-    fetchQuery(searchBox.value);
-    searchForm.reset();
+  renderSearchForm(searchTypeRadios[0].id);
+  searchTypeRadios.forEach((radio) => {
+    radio.addEventListener('change', (event) => {
+      renderSearchForm(event.target.id);
+    });
   });
 });
 
+function renderSearchForm(searchType) {
+  const formContainer = document.getElementById('form-div');
+  formContainer.innerHTML = '';
+  const form = document.createElement('form');
+  const input = document.createElement('input');
+  const inputLabel = document.createElement('label');
+  const submitBtn = document.createElement('input');
+  const inputString = `${searchType}-input`;
+  input.id = inputString;
+  input.name = inputString;
+  inputLabel.htmlFor = inputString;
+
+  switch (searchType) {
+    case 'schedule':
+      input.type = 'date';
+      input.value = new Date().toISOString().slice(0, 10);
+      console.log(input.value);
+      input.min = '1950-01-01';
+      input.max = '2050-12-31';
+      inputLabel.textContent = 'Date';
+      break;
+    case 'show-name':
+      input.type = 'text';
+      input.placeholder = 'Enter Show Name';
+      inputLabel.textContent = 'Show Name';
+      break;
+  }
+
+  submitBtn.type = 'submit';
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const searchBox = document.getElementById(e.target[0].id);
+    console.log(searchBox.value);
+    searchType === 'schedule'
+      ? fetchSchedule(searchBox.value)
+      : fetchQuery(searchBox.value);
+    form.reset();
+  });
+  form.append(inputLabel, input, submitBtn);
+  formContainer.append(form);
+}
 //Get value of searchbox when submit button pressed
 
 //GET data from API based on what is entered in search box
@@ -26,6 +66,12 @@ function fetchEpisodes(showID) {
   fetch(`https://api.tvmaze.com/shows/${showID}/episodes`)
     .then((res) => res.json())
     .then((results) => displayEpisodes(results));
+}
+
+function fetchSchedule(date) {
+  fetch(scheduleSearch + date)
+    .then((res) => res.json())
+    .then((schedule) => console.log(schedule));
 }
 
 //clear any results currently on the page

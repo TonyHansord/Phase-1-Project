@@ -10,11 +10,30 @@
   </head>
   <body>
     <section>
-      <form>
-        <label for="search_box">Search shows</label>
-        <input id="search_box" type="text" placeholder="Enter show" />
-        <input type="submit" />
-      </form>
+      <div>
+        <fieldset>
+          <div>
+            <input
+              id="show-name"
+              type="radio"
+              value="show-name"
+              name="search-type"
+              checked
+            />
+            <label for="show_name">Show name</label>
+          </div>
+          <div>
+            <input
+              id="schedule"
+              type="radio"
+              value="schedule"
+              name="search-type"
+            />
+            <label for="schedule">Schedule</label>
+          </div>
+        </fieldset>
+      </div>
+      <div id="form-div"></div>
     </section>
     <section id="results-section"></section>
 
