@@ -9,7 +9,23 @@
     <link rel="stylesheet" href="styles/styles.css" />
   </head>
   <body>
-    <section>
+    <header>
+      <h1>Find That Show</h1>
+    </header>
+
+    <section id="form-section">
+      <div id="decades-container">
+        <h3>Decade Shortcuts</h3>
+        <div id="decade-btn-container">
+          <button class="decade-btn" id="1950s">1950's</button>
+          <button class="decade-btn" id="1960s">1960's</button>
+          <button class="decade-btn" id="1970s">1970's</button>
+          <button class="decade-btn" id="1980s">1980's</button>
+          <button class="decade-btn" id="1990s">1990's</button>
+          <button class="decade-btn" id="2000s">2000's</button>
+          <button class="decade-btn" id="2010s">2010's</button>
+        </div>
+      </div>
       <div>
         <fieldset>
           <div>
@@ -20,7 +36,7 @@
               name="search-type"
               checked
             />
-            <label for="show_name">Show name</label>
+            <label for="show-name">Show name</label>
           </div>
           <div>
             <input
@@ -33,11 +49,7 @@
           </div>
         </fieldset>
       </div>
-      <div>
-        <button id="70s">70's</button>
-        <button id="80s">80's</button>
-        <button id="90s">90's</button>
-      </div>
+
       <div id="form-div"></div>
       <div id="filter-container"></div>
     </section>

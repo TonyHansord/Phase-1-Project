@@ -1,28 +1,20 @@
-const resultsSection = document.getElementById('results-section');
-const menuContainer = document.getElementById('filter-container');
-const searchTypeRadios = document.querySelectorAll('input[name="search-type"]');
-const seventiesBtn = document.getElementById('70s');
-const eightiesBtn = document.getElementById('80s');
-const ninetiesBtn = document.getElementById('90s');
 const allShows = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   fetchAllShows();
 
-  seventiesBtn.addEventListener('click', () => {
-    let filteredData = filterShows('197');
-    showFilterSortMenu(filteredData);
-    renderResults(filteredData);
-  });
-  eightiesBtn.addEventListener('click', () => {
-    let filteredData = filterShows('198');
-    showFilterSortMenu(filteredData);
-    renderResults(filteredData);
-  });
-  ninetiesBtn.addEventListener('click', () => {
-    let filteredData = filterShows('199');
-    showFilterSortMenu(filteredData);
-    renderResults(filteredData);
+  const decadeBtns = document.querySelectorAll('.decade-btn');
+
+  decadeBtns.forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+      const decade = event.target.id;
+      const filteredData = filterShows(decade.slice(0, 3));
+
+      let resultsHeading = `Shows from the ${decade}`;
+
+      showFilterSortMenu(filteredData, resultsHeading);
+      renderResults(filteredData, resultsHeading);
+    });
   });
 
   renderSearchForm(searchTypeRadios[0].id);
@@ -46,21 +38,47 @@ function fetchAllShows() {
   }
 }
 
-function filterShows(timeFrame) {
-  return allShows.filter((show) => {
-    if (show['premiered'] !== null) {
-      return show['premiered'].startsWith(timeFrame);
+//Get value of searchbox when submit button pressed
+
+//GET data from API based on what is entered in search box
+// eg:`https://api.tvmaze.com/search/shows?%q=${value of search box}'`;
+
+function fetchQuery(query) {
+  const searchResults = allShows.filter((show) => {
+    if (show['name'] !== null) {
+      return show['name'].startsWith(query);
     }
   });
+
+  const numResults = searchResults.length;
+
+  showFilterSortMenu(searchResults);
+  renderResults(searchResults, `${numResults} results for ${query}`);
 }
 
-function filterResultsByGenre(data, genre = 'comedy') {
-  return data.filter((show) => {
-    return show.genres.includes(genre);
-  });
+function fetchEpisodes(showID, showName) {
+  fetch(`https://api.tvmaze.com/shows/${showID}/episodes`)
+    .then((res) => res.json())
+    .then((results) => displayEpisodes(results, showName));
 }
 
-// console.log(filteredData);
+function fetchSchedule(country, date) {
+  fetch(`${scheduleSearch}country=${country}&date=${date}`)
+    .then((res) => res.json())
+    .then((schedule) => displaySchedule(schedule));
+}
+
+//clear any results currently on the page
+//render the results of the search query
+//??? limit to only show 20 results per page?
+
+const clearContainer = (element) => {
+  let child = element.lastElementChild;
+  while (child) {
+    element.removeChild(child);
+    child = element.lastElementChild;
+  }
+};
 
 function renderSearchForm(searchType) {
   const formContainer = document.getElementById('form-div');
@@ -116,81 +134,20 @@ function renderSearchForm(searchType) {
   formContainer.append(form);
 }
 
-function showFilterSortMenu(data) {
-  const genreFilter = document.createElement('select');
-  genreFilter.id = 'genre-filter';
-  const genreFilterLabel = document.createElement('label');
-
-  showGenres.forEach((genre) => {
-    const genreMenuOption = document.createElement('option');
-    genreMenuOption.id = genre.toLowerCase();
-    genreMenuOption.value = genre;
-    genreMenuOption.textContent = genre;
-    genreFilter.addEventListener('change', (e) => {
-      const filteredData = filterResultsByGenre(data, e.target.value);
-      renderResults(filteredData);
-    });
-    genreFilter.appendChild(genreMenuOption);
-  });
-  genreFilterLabel.htmlFor = 'genre-filter';
-  genreFilterLabel.textContent = 'Genre';
-
-  clearContainer(menuContainer);
-  menuContainer.append(genreFilterLabel, genreFilter);
-}
-
-//Get value of searchbox when submit button pressed
-
-//GET data from API based on what is entered in search box
-// eg:`https://api.tvmaze.com/search/shows?%q=${value of search box}'`;
-
-function fetchQuery(query) {
-  const searchResults = allShows.filter((show) => {
-    if (show['name'] !== null) {
-      return show['name'].startsWith(query);
-    }
-  });
-  showFilterSortMenu(searchResults);
-  renderResults(searchResults);
-
-  // const searchQuery = `${showSearch}?&q=${query}`;
-  // fetch(searchQuery)
-  //   .then((res) => res.json())
-  //   .then((results) => renderResults(results));
-}
-
-function fetchEpisodes(showID) {
-  fetch(`https://api.tvmaze.com/shows/${showID}/episodes`)
-    .then((res) => res.json())
-    .then((results) => displayEpisodes(results));
-}
-
-function fetchSchedule(country, date) {
-  fetch(`${scheduleSearch}country=${country}&date=${date}`)
-    .then((res) => res.json())
-    .then((schedule) => displaySchedule(schedule));
-}
-
-//clear any results currently on the page
-//render the results of the search query
-//??? limit to only show 20 results per page?
-
-const clearContainer = (element) => {
-  let child = element.lastElementChild;
-  while (child) {
-    element.removeChild(child);
-    child = element.lastElementChild;
-  }
-};
-
-function renderResults(data) {
+function renderResults(data, heading = 'Results') {
   clearContainer(resultsSection);
-  resultsSection.className = 'search-results';
+
+  const resultsContainer = document.createElement('div');
+  resultsContainer.id = 'results-container';
+  resultsContainer.className = 'search-results';
+
+  const resultsHeading = document.createElement('h2');
+  resultsHeading.className = 'results-heading';
+  resultsHeading.textContent = heading;
+  resultsSection.appendChild(resultsHeading);
 
   for (let result of data) {
     //create an element for each result
-
-    // console.log(result.genres.includes('Comedy'));
 
     const showInfo = 'show' in result ? result.show : result;
 
@@ -198,37 +155,45 @@ function renderResults(data) {
     showContainer.className = 'result-container';
     // add a click event listener to clear results and display show information instead
     showContainer.addEventListener('click', () => {
-      console.log(showInfo);
-      fetchEpisodes(showInfo.id);
+      // console.log(showInfo);
+      fetchEpisodes(showInfo.id, showInfo.name);
       clearContainer(resultsSection);
       clearContainer(menuContainer);
-      resultsSection.className = 'episodes';
+      resultsContainer.className = 'episodes';
     });
 
     // console.log(showInfo);
     let title = document.createElement('h1');
     title.textContent = showInfo.name;
     let showImg = document.createElement('img');
+    showImg.className = 'show-img';
     showInfo.image !== null
       ? (showImg.src = showInfo.image.medium)
       : (showImg.style.display = 'none');
     showContainer.appendChild(title);
     showContainer.appendChild(showImg);
-    resultsSection.appendChild(showContainer);
+    resultsContainer.appendChild(showContainer);
   }
+
+  resultsSection.appendChild(resultsContainer);
 }
 
-function displayEpisodes(data) {
-  // console.log(data);
+function displayEpisodes(data, heading) {
+  console.log(data);
   const numSeasons = data[data.length - 1].season;
   console.log(numSeasons);
 
+  const resultsHeading = document.createElement('h2');
+  resultsHeading.textContent = heading;
+  resultsHeading.className = 'results-heading';
+  resultsSection.appendChild(resultsHeading);
+
   for (let i = 1; i <= numSeasons; i++) {
     //create a container for each season
-    let seasonContainer = document.createElement('div');
+    let seasonContainer = document.createElement('details');
     seasonContainer.className = `season-container`;
     seasonContainer.id = `season-${i}`;
-    let seasonTitle = document.createElement('h1');
+    let seasonTitle = document.createElement('summary');
     seasonTitle.textContent = `Season ${i}`;
     seasonContainer.appendChild(seasonTitle);
 
@@ -257,25 +222,6 @@ function displayEpisodes(data) {
 
     resultsSection.appendChild(seasonContainer);
   }
-
-  // for (let result of data) {
-  //   //create an element for each result
-  //   let epContainer = document.createElement('div');
-  //   epContainer.className = 'result-container';
-  //   // add a click event listener to clear results and display show information instead
-  //   let title = document.createElement('h1');
-  //   title.textContent = result.name;
-  //   let showImg = document.createElement('img');
-  //   result.image !== null
-  //     ? (showImg.src = result.image.medium)
-  //     : (showImg.style.display = 'none');
-  //   let summary = document.createElement('div');
-  //   summary.innerHTML = result.summary;
-  //   epContainer.appendChild(title);
-  //   epContainer.appendChild(showImg);
-  //   epContainer.appendChild(summary);
-  //   resultsSection.appendChild(epContainer);
-  // }
 }
 
 function displaySchedule(data) {
@@ -298,6 +244,101 @@ function displaySchedule(data) {
   resultsSection.appendChild(scheduleTable);
 }
 
+// Filter functions
+
+function filterShows(timeFrame) {
+  return allShows.filter((show) => {
+    if (show['premiered'] !== null) {
+      return show['premiered'].startsWith(timeFrame);
+    }
+  });
+}
+
+function filterResultsByGenre(data, genre) {
+  return data.filter((show) => {
+    return show.genres.includes(genre);
+  });
+}
+
+// Sort functions
+
+function sortByNameOrYear(data, sortType) {
+  let key = sortType === 'Name' ? 'name' : 'premiered';
+
+  return data.sort((a, b) => {
+    if (a[key] < b[key]) {
+      return -1;
+    } else if (a[key] > b[key]) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+}
+
+function sortByRating(data) {
+  return data.sort((a, b) => {
+    return b.rating.average - a.rating.average;
+  });
+}
+
+function showFilterSortMenu(data, heading = 'Results') {
+  let results = data;
+  clearContainer(menuContainer);
+
+  const filterHeadingContainer = document.createElement('div');
+
+  const filterHeading = document.createElement('h2');
+  filterHeading.textContent = 'Filter';
+  filterHeadingContainer.append(filterHeading);
+
+  const genreFilter = document.createElement('select');
+  genreFilter.id = 'genre-filter';
+  const genreFilterLabel = document.createElement('label');
+
+  showGenres.forEach((genre) => {
+    const genreMenuOption = document.createElement('option');
+    genreMenuOption.id = genre.toLowerCase();
+    genreMenuOption.value = genre;
+    genreMenuOption.textContent = genre;
+    genreFilter.addEventListener('change', (e) => {
+      const filteredData =
+        e.target.value !== ''
+          ? filterResultsByGenre(data, e.target.value)
+          : data;
+      results = filteredData;
+      renderResults(results, heading);
+    });
+    genreFilter.appendChild(genreMenuOption);
+  });
+  genreFilterLabel.htmlFor = 'genre-filter';
+  genreFilterLabel.textContent = 'Genre';
+
+  const sortMenu = document.createElement('select');
+  sortMenu.id = 'sort-menu';
+  const sortMenuLabel = document.createElement('label');
+  sortMenuLabel.htmlFor = 'sort-menu';
+  sortMenuLabel.textContent = 'Sort By';
+
+  const sortMenuOptions = ['', 'Name', 'Rating', 'Year'];
+  sortMenuOptions.forEach((option) => {
+    const sortMenuOption = document.createElement('option');
+    sortMenuOption.id = option.toLowerCase();
+    sortMenuOption.value = option;
+    sortMenuOption.textContent = option;
+    sortMenu.addEventListener('change', (e) => {
+      const dataCopy = [...results];
+      const sortedData =
+        e.target.value === 'Rating'
+          ? sortByRating(dataCopy)
+          : sortByNameOrYear(dataCopy, e.target.value);
+      renderResults(sortedData);
+    });
+    sortMenu.appendChild(sortMenuOption);
+  });
+
+  menuContainer.append(genreFilterLabel, genreFilter, sortMenuLabel, sortMenu);
+}
 //callback function to render show information
 // fetch data for specific show using its ID
 // also display list of episodes

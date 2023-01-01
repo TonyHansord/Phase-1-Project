@@ -6,6 +6,7 @@ const showCountry = [
   { countryCode: 'GB', countryName: 'UK' },
 ];
 const showGenres = [
+  '',
   'Action',
   'Adult',
   'Adventure',
@@ -37,3 +38,7 @@ const showGenres = [
 ];
 
 const showData = 'http://localhost:3000/shows/1';
+
+const resultsSection = document.getElementById('results-section');
+const menuContainer = document.getElementById('filter-container');
+const searchTypeRadios = document.querySelectorAll('input[name="search-type"]');

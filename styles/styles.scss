@@ -1,7 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@100;200;300;400;500;600;700;800;900&display=swap');
+$primary-color: #f5f5f5;
+$secondary-color: rgba(32, 174, 231, 0.999);
+$dark-accent: #2b2b2b;
+$main-font: 'Inter Tight', sans-serif;
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  text-align: center;
+  font-family: $main-font;
+}
+
+body {
+  background-color: rgb(41, 44, 50);
+  width: 80vw;
+  margin: 0 auto;
+}
+
+header {
+  background-color: $primary-color;
+}
+
+#form-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 80vw;
+  margin: 0 auto;
+  background-color: #f5f5f5;
+  overflow: hidden;
 }
 
 form {
@@ -11,7 +41,6 @@ form {
   justify-content: center;
   gap: 2rem;
   height: 100%;
-  width: 100vw;
   background-color: #f5f5f5;
 
   input {
@@ -22,26 +51,101 @@ form {
     padding: 0 1rem;
   }
 }
+
+fieldset {
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#decades-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  height: 100%;
+  padding: 2rem;
+  background-color: #f5f5f5;
+}
+
+#decade-btn-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.decade-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  width: 5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 0 1rem;
+  background-color: #f5f5f5;
+}
+
+.decade-btn:hover {
+  background-color: $secondary-color;
+}
+
+.results-heading {
+  font-size: 4rem;
+  padding: 3rem;
+  font-family: $main-font;
+  font-weight: 300;
+}
+
 #results-section {
   width: 80vw;
   height: 100%;
   margin: 0 auto;
   background-color: #f2f2f2;
+  gap: 2rem;
 }
 
-#results-section.search-results {
+#results-container.search-results {
   display: grid;
   justify-content: space-evenly;
   grid-template-columns: repeat(auto-fill, minmax(240px, 4fr));
   gap: 1rem;
 }
 
+.show-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 #results-section.episodes {
   display: grid;
   flex-direction: column;
   justify-content: space-evenly;
-  grid-template-rows: repeat(auto-fill, minmax(240px, 4fr));
   gap: 1rem;
+}
+.season-container {
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  border: 2px solid rgb(255, 255, 255);
+}
+
+.season-container > summary {
+  background-color: $secondary-color;
+  color: #fff;
+  font-size: 2rem;
+  text-align: left;
+  width: 80vw;
+  list-style: none;
+}
+
+.season-container[open] > summary {
+  background-color: $dark-accent;
 }
 
 .season-container > .result-container {
@@ -74,6 +178,17 @@ form {
   h1 {
     display: inline;
   }
+}
+
+#filter-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100vw;
+  padding: 2rem;
+  background-color: #f5f5f5;
 }
 
 table,
