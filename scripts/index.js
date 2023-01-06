@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
   decadeBtns.forEach((btn) => {
     btn.addEventListener('click', (event) => {
       const decade = event.target.id;
-      const filteredData = filterShows(decade.slice(0, 3));
+      const filteredData = filterShowsByTimeframe(decade.slice(0, 3));
+      console.log(filteredData);
 
       let resultsHeading = `Shows from the ${decade}`;
 
@@ -33,7 +34,14 @@ function fetchAllShows() {
         shows.forEach((show) => {
           allShows.push(show);
         });
-        console.log('done');
+        if (i === 264) {
+          const sortedData = sortShowsByRating(allShows);
+
+          const topFifty = sortedData.slice(0, 50);
+
+          showFilterSortMenu(allShows);
+          renderResults(topFifty, 'Top 50 Shows');
+        }
       });
   }
 }
@@ -44,6 +52,8 @@ function fetchAllShows() {
 // eg:`https://api.tvmaze.com/search/shows?%q=${value of search box}'`;
 
 function fetchQuery(query) {
+  console.log(`in fetchQuery`);
+
   const searchResults = allShows.filter((show) => {
     if (show['name'] !== null) {
       return show['name'].startsWith(query);
@@ -52,8 +62,10 @@ function fetchQuery(query) {
 
   const numResults = searchResults.length;
 
-  showFilterSortMenu(searchResults);
-  renderResults(searchResults, `${numResults} results for ${query}`);
+  const sortedData = sortShowsByRating(searchResults);
+
+  showFilterSortMenu(sortedData);
+  renderResults(sortedData, `${numResults} results for ${query}`);
 }
 
 function fetchEpisodes(showID, showName) {
@@ -111,10 +123,10 @@ function renderSearchForm(searchType) {
       dropDown.style.display = 'flex';
       fetchSchedule(dropDown.value, input.value);
       break;
-    case 'show-name':
+    default:
       input.type = 'text';
-      input.placeholder = 'Enter Show Name';
-      inputLabel.textContent = 'Show Name';
+      input.placeholder = `Enter ${searchType === 'year' ? 'year' : 'show'}`;
+      inputLabel.textContent = 'Search';
       dropDown.style.display = 'none';
       break;
   }
@@ -129,7 +141,23 @@ function renderSearchForm(searchType) {
     searchType === 'schedule'
       ? fetchSchedule(countrySel.value, searchBox.value)
       : fetchQuery(searchBox.value);
+
+    switch (searchType) {
+      case 'schedule':
+        fetchSchedule(countrySel.value, searchBox.value);
+        break;
+      case 'year':
+        renderResults(
+          filterShowsByTimeframe(searchBox.value),
+          `Shows from ${searchBox.value}`
+        );
+        break;
+      default:
+        fetchQuery(searchBox.value);
+        break;
+    }
   });
+
   form.append(inputLabel, input, dropDown, submitBtn);
   formContainer.append(form);
 }
@@ -145,6 +173,8 @@ function renderResults(data, heading = 'Results') {
   resultsHeading.className = 'results-heading';
   resultsHeading.textContent = heading;
   resultsSection.appendChild(resultsHeading);
+
+  resultsSection.appendChild(menuContainer);
 
   for (let result of data) {
     //create an element for each result
@@ -163,16 +193,18 @@ function renderResults(data, heading = 'Results') {
     });
 
     // console.log(showInfo);
-    let title = document.createElement('h1');
+    let title = document.createElement('h3');
+    title.className = 'show-title';
     title.textContent = showInfo.name;
     let showImg = document.createElement('img');
     showImg.className = 'show-img';
-    showInfo.image !== null
-      ? (showImg.src = showInfo.image.medium)
-      : (showImg.style.display = 'none');
-    showContainer.appendChild(title);
-    showContainer.appendChild(showImg);
-    resultsContainer.appendChild(showContainer);
+
+    if (showInfo.image !== null) {
+      showImg.src = showInfo.image.medium;
+      showContainer.appendChild(title);
+      showContainer.appendChild(showImg);
+      resultsContainer.appendChild(showContainer);
+    }
   }
 
   resultsSection.appendChild(resultsContainer);
@@ -246,10 +278,27 @@ function displaySchedule(data) {
 
 // Filter functions
 
-function filterShows(timeFrame) {
+function showYears(min, max) {
+  let years = [];
+  for (let i = min; i <= max; i++) {
+    years.push(i.toString());
+  }
+  console.log(years);
+  return years;
+}
+
+function filterShowsByTimeframe(timeFrame) {
   return allShows.filter((show) => {
     if (show['premiered'] !== null) {
-      return show['premiered'].startsWith(timeFrame);
+      const premieredYear = show['premiered'].slice(0, 4);
+      const endedYear =
+        show['ended'] !== null
+          ? show['ended'].slice(0, 4)
+          : new Date().getFullYear();
+
+      const airedYears = showYears(premieredYear, endedYear);
+
+      return airedYears.some((year) => year.startsWith(timeFrame));
     }
   });
 }
@@ -276,7 +325,7 @@ function sortByNameOrYear(data, sortType) {
   });
 }
 
-function sortByRating(data) {
+function sortShowsByRating(data) {
   return data.sort((a, b) => {
     return b.rating.average - a.rating.average;
   });
@@ -330,9 +379,9 @@ function showFilterSortMenu(data, heading = 'Results') {
       const dataCopy = [...results];
       const sortedData =
         e.target.value === 'Rating'
-          ? sortByRating(dataCopy)
+          ? sortShowsByRating(dataCopy)
           : sortByNameOrYear(dataCopy, e.target.value);
-      renderResults(sortedData);
+      renderResults(sortedData, heading);
     });
     sortMenu.appendChild(sortMenuOption);
   });

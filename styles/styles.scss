@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@100;200;300;400;500;600;700;800;900&display=swap');
 $primary-color: #f5f5f5;
 $secondary-color: rgba(32, 174, 231, 0.999);
-$dark-accent: #2b2b2b;
+$dark-accent: rgb(41, 44, 50);
 $main-font: 'Inter Tight', sans-serif;
 
 * {
@@ -10,6 +10,8 @@ $main-font: 'Inter Tight', sans-serif;
   padding: 0;
   text-align: center;
   font-family: $main-font;
+  background-color: $dark-accent;
+  color: $primary-color;
 }
 
 body {
@@ -19,7 +21,16 @@ body {
 }
 
 header {
-  background-color: $primary-color;
+  height: 100%;
+  font-size: 2rem;
+}
+
+select {
+  height: 2rem;
+  width: 20rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 0 1rem;
 }
 
 #form-section {
@@ -30,7 +41,6 @@ header {
   height: 100%;
   width: 80vw;
   margin: 0 auto;
-  background-color: #f5f5f5;
   overflow: hidden;
 }
 
@@ -41,7 +51,6 @@ form {
   justify-content: center;
   gap: 2rem;
   height: 100%;
-  background-color: #f5f5f5;
 
   input {
     height: 2rem;
@@ -58,6 +67,8 @@ fieldset {
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  width: 80vw;
+  padding: 2rem;
 }
 
 #decades-container {
@@ -68,7 +79,6 @@ fieldset {
   gap: 1rem;
   height: 100%;
   padding: 2rem;
-  background-color: #f5f5f5;
 }
 
 #decade-btn-container {
@@ -87,7 +97,6 @@ fieldset {
   border: 1px solid #ccc;
   border-radius: 0.5rem;
   padding: 0 1rem;
-  background-color: #f5f5f5;
 }
 
 .decade-btn:hover {
@@ -114,6 +123,8 @@ fieldset {
   justify-content: space-evenly;
   grid-template-columns: repeat(auto-fill, minmax(240px, 4fr));
   gap: 1rem;
+  padding: 1rem 0;
+  background-color: $dark-accent;
 }
 
 .show-img {
@@ -168,14 +179,34 @@ fieldset {
 }
 
 .result-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
-  background-color: rgba(206, 206, 206, 0.999);
+  bottom: 0;
+  right: 0;
+  transition: bottom 0.5s ease, right 0.5s ease-in-out;
+  cursor: pointer;
 
-  h1 {
+  .show-title {
+    font-weight: 300;
+    padding: 1rem;
+    font-size: 1.5rem;
+    display: none;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    width: 100%;
+    bottom: 0;
+  }
+}
+
+.result-container:hover {
+  bottom: -5px;
+  right: -5px;
+  .show-title {
     display: inline;
   }
 }
@@ -186,9 +217,8 @@ fieldset {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  width: 100vw;
+  width: 80vw;
   padding: 2rem;
-  background-color: #f5f5f5;
 }
 
 table,
