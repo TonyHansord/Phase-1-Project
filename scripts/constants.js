@@ -37,7 +37,7 @@ const showGenres = [
   'Western',
 ];
 
-const showData = 'http://localhost:3000/shows/1';
+const db = 'http://localhost:3000';
 
 const resultsSection = document.getElementById('results-section');
 const menuContainer = document.getElementById('filter-container');

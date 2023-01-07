@@ -3,6 +3,14 @@ const allShows = [];
 document.addEventListener('DOMContentLoaded', () => {
   fetchAllShows();
 
+  fetch(`${db}/topfifty`)
+    .then((res) => res.json())
+    .then((topFifty) => {
+      console.log(topFifty);
+      showFilterSortMenu(topFifty);
+      renderResults(topFifty, 'Top 50 Shows');
+    });
+
   const decadeBtns = document.querySelectorAll('.decade-btn');
 
   decadeBtns.forEach((btn) => {
@@ -35,12 +43,17 @@ function fetchAllShows() {
           allShows.push(show);
         });
         if (i === 264) {
-          const sortedData = sortShowsByRating(allShows);
-
-          const topFifty = sortedData.slice(0, 50);
-
           showFilterSortMenu(allShows);
-          renderResults(topFifty, 'Top 50 Shows');
+          // const sortedData = sortShowsByRating(allShows);
+          // const topFifty = sortedData.slice(0, 50);
+
+          // fetch(`${db}/shows`, {
+          //   method: 'POST',
+          //   headers: {
+          //     'Content-Type': 'application/json',
+          //   },
+          //   body: JSON.stringify({ topfifty: topFifty }),
+          // });
         }
       });
   }
