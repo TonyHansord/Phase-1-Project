@@ -81,16 +81,16 @@ function fetchQuery(query) {
   renderResults(sortedData, `${numResults} results for ${query}`);
 }
 
-function fetchEpisodes(showID, showName) {
-  fetch(`https://api.tvmaze.com/shows/${showID}/episodes`)
+function fetchEpisodes(showInfo) {
+  fetch(`https://api.tvmaze.com/shows/${showInfo.id}/episodes`)
     .then((res) => res.json())
-    .then((results) => displayEpisodes(results, showName));
+    .then((results) => displayShowInfo(showInfo, results));
 }
 
-function fetchSchedule(country, date) {
+function fetchSchedule(country, date, dateFormatted) {
   fetch(`${scheduleSearch}country=${country}&date=${date}`)
     .then((res) => res.json())
-    .then((schedule) => displaySchedule(schedule));
+    .then((schedule) => displaySchedule(schedule, dateFormatted));
 }
 
 //clear any results currently on the page
@@ -134,7 +134,9 @@ function renderSearchForm(searchType) {
       input.max = '2050-12-31';
       inputLabel.textContent = 'Date';
       dropDown.style.display = 'flex';
-      fetchSchedule(dropDown.value, input.value);
+
+      let date = new Date(input.value).toLocaleDateString();
+      fetchSchedule(dropDown.value, input.value, date);
       break;
     default:
       input.type = 'text';
@@ -151,13 +153,11 @@ function renderSearchForm(searchType) {
     const searchBox = document.getElementById(e.target[0].id);
     const countrySel = document.querySelector('select');
     console.log(searchBox.value);
-    searchType === 'schedule'
-      ? fetchSchedule(countrySel.value, searchBox.value)
-      : fetchQuery(searchBox.value);
 
     switch (searchType) {
       case 'schedule':
-        fetchSchedule(countrySel.value, searchBox.value);
+        const date = new Date(searchBox.value).toLocaleDateString();
+        fetchSchedule(countrySel.value, searchBox.value, date);
         break;
       case 'year':
         renderResults(
@@ -199,7 +199,7 @@ function renderResults(data, heading = 'Results') {
     // add a click event listener to clear results and display show information instead
     showContainer.addEventListener('click', () => {
       // console.log(showInfo);
-      fetchEpisodes(showInfo.id, showInfo.name);
+      fetchEpisodes(showInfo);
       clearContainer(resultsSection);
       clearContainer(menuContainer);
       resultsContainer.className = 'episodes';
@@ -223,15 +223,49 @@ function renderResults(data, heading = 'Results') {
   resultsSection.appendChild(resultsContainer);
 }
 
-function displayEpisodes(data, heading) {
-  console.log(data);
-  const numSeasons = data[data.length - 1].season;
+function displayShowInfo(showInfo, epData) {
+  console.log(showInfo);
+
+  const showInfoContainer = document.createElement('div');
+  showInfoContainer.className = 'show-info-container';
+
+  const showImg = document.createElement('img');
+  showImg.className = 'show-img';
+  showImg.src = showInfo.image.medium;
+
+  const showTextContainer = document.createElement('div');
+  showTextContainer.className = 'show-text-container';
+
+  const showTitle = document.createElement('h2');
+  showTitle.className = 'show-title';
+  showTitle.textContent = showInfo.name;
+
+  const showSummary = document.createElement('div');
+  showSummary.className = 'show-summary';
+  showSummary.innerHTML = showInfo.summary;
+
+  const showRating = document.createElement('p');
+  showRating.className = 'show-rating';
+  showRating.textContent = `Rating: ${showInfo.rating.average}`;
+
+  showTextContainer.append(showTitle, showSummary, showRating);
+
+  showInfoContainer.append(showImg, showTextContainer);
+  resultsSection.appendChild(showInfoContainer);
+
+  //Render the episodes
+
+  const numSeasons = epData[epData.length - 1].season;
   console.log(numSeasons);
 
-  const resultsHeading = document.createElement('h2');
-  resultsHeading.textContent = heading;
-  resultsHeading.className = 'results-heading';
-  resultsSection.appendChild(resultsHeading);
+  const episodesContainer = document.createElement('div');
+  episodesContainer.id = 'episodes-container';
+  episodesContainer.className = 'episodes';
+
+  const episodesHeading = document.createElement('h3');
+  episodesHeading.textContent = 'Episodes';
+  episodesHeading.className = 'episodes-heading';
+  episodesContainer.appendChild(episodesHeading);
 
   for (let i = 1; i <= numSeasons; i++) {
     //create a container for each season
@@ -243,44 +277,67 @@ function displayEpisodes(data, heading) {
     seasonContainer.appendChild(seasonTitle);
 
     //create an element for each episode
-    let seasonEpisodes = data.filter((episode) => {
+    let seasonEpisodes = epData.filter((episode) => {
       return episode.season === i;
     });
 
     for (let episode of seasonEpisodes) {
       let epContainer = document.createElement('div');
-      epContainer.className = 'result-container';
+      epContainer.className = 'episode-container';
       // add a click event listener to clear results and display show information instead
       let title = document.createElement('h3');
+      title.className = 'episode-title';
       title.textContent = episode.name;
       let showImg = document.createElement('img');
+      showImg.className = 'episode-image';
       episode.image !== null
         ? (showImg.src = episode.image.medium)
         : (showImg.style.display = 'none');
       let summary = document.createElement('div');
+      summary.className = 'episode-summary';
       summary.innerHTML = episode.summary;
-      epContainer.appendChild(title);
-      epContainer.appendChild(showImg);
-      epContainer.appendChild(summary);
+
+      const episodeTextContainer = document.createElement('div');
+      episodeTextContainer.className = 'episode-text-container';
+      episodeTextContainer.append(title, summary);
+
+      epContainer.append(showImg, episodeTextContainer);
       seasonContainer.appendChild(epContainer);
     }
 
-    resultsSection.appendChild(seasonContainer);
+    episodesContainer.appendChild(seasonContainer);
   }
+
+  resultsSection.appendChild(episodesContainer);
 }
 
-function displaySchedule(data) {
+function displaySchedule(data, dateFormatted) {
   console.log(data);
   clearContainer(resultsSection);
   resultsSection.className = 'schedule';
+
+  const scheduleHeading = document.createElement('h2');
+  scheduleHeading.className = 'schedule-heading';
+  scheduleHeading.textContent = `Schedule for  ${dateFormatted}`;
+
+  resultsSection.appendChild(scheduleHeading);
+
   const scheduleTable = document.createElement('table');
 
   data.forEach((result) => {
     const tableRow = document.createElement('tr');
     const timeslot = document.createElement('td');
     timeslot.textContent = result.airtime;
-    const showTitle = document.createElement('td');
+    const showTitleCell = document.createElement('td');
+    const showTitle = document.createElement('p');
     showTitle.textContent = result.show.name;
+    showTitle.className = 'schedule-show-title';
+    showTitle.addEventListener('click', () => {
+      fetchEpisodes(result.show);
+      clearContainer(resultsSection);
+      clearContainer(menuContainer);
+    });
+    showTitleCell.appendChild(showTitle);
     const showDescription = document.createElement('td');
     showDescription.innerHTML = result.summary;
     tableRow.append(timeslot, showTitle, showDescription);

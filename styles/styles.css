@@ -94,7 +94,7 @@ fieldset {
 }
 
 .decade-btn:hover {
-  background-color: rgba(32, 174, 231, 0.999);
+  background-color: rgba(80, 117, 132, 0.999);
 }
 
 .results-heading {
@@ -111,6 +111,16 @@ fieldset {
   background-color: #f2f2f2;
   gap: 2rem;
 }
+#results-section .episodes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 80vw;
+  margin: 0 auto;
+  padding: 2rem;
+}
 
 #results-container.search-results {
   display: grid;
@@ -119,12 +129,6 @@ fieldset {
   gap: 1rem;
   padding: 1rem 0;
   background-color: rgb(41, 44, 50);
-}
-
-.show-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 #results-section.episodes {
@@ -139,10 +143,11 @@ fieldset {
   margin-bottom: 0.5rem;
   overflow: hidden;
   border: 2px solid rgb(255, 255, 255);
+  width: 100%;
 }
 
 .season-container > summary {
-  background-color: rgba(32, 174, 231, 0.999);
+  background-color: rgba(80, 117, 132, 0.999);
   color: #fff;
   font-size: 2rem;
   text-align: left;
@@ -154,21 +159,48 @@ fieldset {
   background-color: rgb(41, 44, 50);
 }
 
-.season-container > .result-container {
+.season-container > .episode-container {
   display: grid;
   align-items: center;
   justify-content: center;
-  grid-template-columns: 30% 30% 30%;
+  grid-template-columns: 45% 45%;
   width: 100%;
   gap: 2rem;
   padding: 1rem;
 }
-.season-container > .result-container h1 {
-  display: inline;
+.season-container > .episode-container * {
+  background-color: transparent;
+}
+.season-container > .episode-container .episode-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.season-container > .episode-container .episode-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem;
+}
+.season-container > .episode-container .episode-text-container .episode-title {
+  font-size: 3rem;
+  font-weight: 300;
+}
+.season-container > .episode-container .episode-text-container .episode-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem;
 }
 
-.season-container > .result-container:nth-child(even) {
-  background-color: rgba(32, 174, 231, 0.999);
+.season-container > .episode-container:nth-child(even) {
+  background-color: rgba(80, 117, 132, 0.999);
 }
 
 .result-container {
@@ -194,6 +226,11 @@ fieldset {
   width: 100%;
   bottom: 0;
 }
+.result-container .show-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .result-container:hover {
   bottom: -5px;
@@ -213,19 +250,67 @@ fieldset {
   padding: 2rem;
 }
 
+.show-info-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 80vw;
+  padding: 2rem;
+}
+.show-info-container .show-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  width: 80vw;
+}
+.show-info-container .show-text-container .show-title {
+  font-size: 3rem;
+  font-weight: 500;
+}
+.show-info-container .show-text-container .show-rating {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+.show-info-container .show-text-container .show-summary > p {
+  text-align: start;
+}
+
 table,
 th,
 td {
   border: 1px solid;
   padding: 2rem;
+  background-color: transparent;
+}
+table p,
+th p,
+td p {
+  background-color: transparent;
 }
 
 table {
   border-collapse: collapse;
+  background-color: rgb(41, 44, 50);
+}
+
+tr {
+  background-color: rgb(41, 44, 50);
 }
 
 tr:nth-child(even) {
-  background-color: #f2f2f2;
+  background-color: rgba(80, 117, 132, 0.999);
+}
+
+.schedule-show-title {
+  font-size: 2rem;
+  font-weight: 300;
+}
+
+.schedule-show-title:hover {
+  color: rgba(80, 117, 132, 0.999);
+  cursor: pointer;
 }
 
 /*# sourceMappingURL=styles.css.map */
