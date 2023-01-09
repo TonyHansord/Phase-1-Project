@@ -42,3 +42,13 @@ const db = 'http://localhost:3000';
 const resultsSection = document.getElementById('results-section');
 const menuContainer = document.getElementById('filter-container');
 const searchTypeRadios = document.querySelectorAll('input[name="search-type"]');
+
+const allShows = [];
+
+let fiftiesShows = [];
+let sixtiesShows = [];
+let seventiesShows = [];
+let eightiesShows = [];
+let ninetiesShows = [];
+let twoThousandsShows = [];
+let twoThousandTensShows = [];

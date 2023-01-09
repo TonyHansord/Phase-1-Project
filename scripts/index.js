@@ -1,28 +1,46 @@
-const allShows = [];
-
 document.addEventListener('DOMContentLoaded', () => {
   fetchAllShows();
+  showTopFifty();
 
-  fetch(`${db}/topfifty`)
-    .then((res) => res.json())
-    .then((topFifty) => {
-      console.log(topFifty);
-      showFilterSortMenu(topFifty);
-      renderResults(topFifty, 'Top 50 Shows');
-    });
-
+  const mainheading = document.getElementById('main-heading');
+  mainheading.addEventListener('click', () => {
+    showTopFifty();
+    showFilterSortMenu(allShows);
+  });
   const decadeBtns = document.querySelectorAll('.decade-btn');
 
   decadeBtns.forEach((btn) => {
     btn.addEventListener('click', (event) => {
-      const decade = event.target.id;
-      const filteredData = filterShowsByTimeframe(decade.slice(0, 3));
-      console.log(filteredData);
+      let decadeData;
 
-      let resultsHeading = `Shows from the ${decade}`;
+      switch (event.target.id) {
+        case '1950s':
+          decadeData = fiftiesShows;
+          break;
+        case '1960s':
+          decadeData = sixtiesShows;
+          break;
+        case '1970s':
+          decadeData = seventiesShows;
+          break;
+        case '1980s':
+          decadeData = eightiesShows;
+          break;
+        case '1990s':
+          decadeData = ninetiesShows;
+          break;
+        case '2000s':
+          decadeData = twoThousandsShows;
+          break;
+        case '2010s':
+          decadeData = twoThousandTensShows;
+          break;
+      }
 
-      showFilterSortMenu(filteredData, resultsHeading);
-      renderResults(filteredData, resultsHeading);
+      let resultsHeading = `Shows from the ${event.target.id}`;
+
+      showFilterSortMenu(decadeData, resultsHeading);
+      renderResults(decadeData, resultsHeading);
     });
   });
 
@@ -34,6 +52,26 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+function showTopFifty() {
+  fetch(`${db}/topfifty`)
+    .then((res) => res.json())
+    .then((topFifty) => {
+      console.log(topFifty);
+      showFilterSortMenu(topFifty);
+      renderResults(topFifty, 'Top 50 Shows');
+    });
+}
+
+function populateDecadeArrays() {
+  fiftiesShows = filterShowsByTimeframe('195');
+  sixtiesShows = filterShowsByTimeframe('196');
+  seventiesShows = filterShowsByTimeframe('197');
+  eightiesShows = filterShowsByTimeframe('198');
+  ninetiesShows = filterShowsByTimeframe('199');
+  twoThousandsShows = filterShowsByTimeframe('200');
+  twoThousandTensShows = filterShowsByTimeframe('201');
+}
+
 function fetchAllShows() {
   for (let i = 0; i < 265; i++) {
     fetch(`https://api.tvmaze.com/shows?page=${i}`)
@@ -44,16 +82,7 @@ function fetchAllShows() {
         });
         if (i === 264) {
           showFilterSortMenu(allShows);
-          // const sortedData = sortShowsByRating(allShows);
-          // const topFifty = sortedData.slice(0, 50);
-
-          // fetch(`${db}/shows`, {
-          //   method: 'POST',
-          //   headers: {
-          //     'Content-Type': 'application/json',
-          //   },
-          //   body: JSON.stringify({ topfifty: topFifty }),
-          // });
+          populateDecadeArrays();
         }
       });
   }
@@ -353,7 +382,6 @@ function showYears(min, max) {
   for (let i = min; i <= max; i++) {
     years.push(i.toString());
   }
-  console.log(years);
   return years;
 }
 
