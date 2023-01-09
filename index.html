@@ -6,58 +6,39 @@
     <title></title>
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script
+      src="https://kit.fontawesome.com/7a48385b9d.js"
+      crossorigin="anonymous"
+    ></script>
     <link rel="stylesheet" href="styles/styles.css" />
   </head>
   <body>
-    <header>
-      <h1 id="main-heading">Find That Show</h1>
-    </header>
-
-    <section id="form-section">
-      <div id="decades-container">
-        <h3>Decade Shortcuts</h3>
-        <div id="decade-btn-container">
-          <button class="decade-btn" id="1950s">1950's</button>
-          <button class="decade-btn" id="1960s">1960's</button>
-          <button class="decade-btn" id="1970s">1970's</button>
-          <button class="decade-btn" id="1980s">1980's</button>
-          <button class="decade-btn" id="1990s">1990's</button>
-          <button class="decade-btn" id="2000s">2000's</button>
-          <button class="decade-btn" id="2010s">2010's</button>
-        </div>
+    <div id="nav-container">
+      <header>
+        <h1 id="main-heading">Find That Show</h1>
+      </header>
+      <div id="search-div">
+        <select id="search-types" name="search-types">
+          <option class="search-option" value="show-name" selected>
+            Show name
+          </option>
+          <option class="search-option" value="year">Year</option>
+          <option class="search-option" value="schedule">Schedule</option>
+        </select>
+        <!-- <h3>Decade Shortcuts</h3> -->
+        <div id="form-div"></div>
       </div>
-      <div id="search-types">
-        <fieldset>
-          <div>
-            <input
-              id="show-name"
-              type="radio"
-              value="show-name"
-              name="search-type"
-              checked
-            />
-            <label for="show-name">Show name</label>
-          </div>
-
-          <div>
-            <input id="year" type="radio" value="year" name="search-type" />
-            <label for="year">Year</label>
-          </div>
-
-          <div>
-            <input
-              id="schedule"
-              type="radio"
-              value="schedule"
-              name="search-type"
-            />
-            <label for="schedule">Schedule</label>
-          </div>
-        </fieldset>
+      <div id="decade-btn-container">
+        <button class="decade-btn" id="1950s">1950's</button>
+        <button class="decade-btn" id="1960s">1960's</button>
+        <button class="decade-btn" id="1970s">1970's</button>
+        <button class="decade-btn" id="1980s">1980's</button>
+        <button class="decade-btn" id="1990s">1990's</button>
+        <button class="decade-btn" id="2000s">2000's</button>
+        <button class="decade-btn" id="2010s">2010's</button>
       </div>
+    </div>
 
-      <div id="form-div"></div>
-    </section>
     <section id="results-section"></section>
     <div id="filter-container"></div>
 

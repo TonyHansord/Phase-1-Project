@@ -43,12 +43,18 @@ document.addEventListener('DOMContentLoaded', () => {
       renderResults(decadeData, resultsHeading);
     });
   });
+  renderSearchForm(searchOptions[0].id);
 
-  renderSearchForm(searchTypeRadios[0].id);
-  searchTypeRadios.forEach((radio) => {
-    radio.addEventListener('change', (event) => {
-      renderSearchForm(event.target.id);
+  searchOptions.forEach(() => {
+    searchTypes.addEventListener('change', (event) => {
+      console.log(event.target);
+      renderSearchForm(event.target.value);
     });
+
+    // searchTypes.addEventListener('change', (event) => {
+    //   console.log(event.target);
+
+    //   renderSearchForm(event.target.id);
   });
 });
 
@@ -140,6 +146,7 @@ function renderSearchForm(searchType) {
   const form = document.createElement('form');
   const input = document.createElement('input');
   const dropDown = document.createElement('select');
+  dropDown.id = 'country-select';
   showCountry.forEach((country) => {
     const option = document.createElement('option');
     option.id = country.countryCode;
@@ -147,12 +154,11 @@ function renderSearchForm(searchType) {
     option.textContent = country.countryName;
     dropDown.appendChild(option);
   });
-  const inputLabel = document.createElement('label');
-  const submitBtn = document.createElement('input');
+  const submitBtn = document.createElement('button');
+  input.className = 'search-input';
   const inputString = `${searchType}-input`;
   input.id = inputString;
   input.name = inputString;
-  inputLabel.htmlFor = inputString;
 
   switch (searchType) {
     case 'schedule':
@@ -161,26 +167,32 @@ function renderSearchForm(searchType) {
       console.log(input.value);
       input.min = '1950-01-01';
       input.max = '2050-12-31';
-      inputLabel.textContent = 'Date';
       dropDown.style.display = 'flex';
 
       let date = new Date(input.value).toLocaleDateString();
       fetchSchedule(dropDown.value, input.value, date);
       break;
+    case 'year':
+      input.type = 'number';
+      input.min = '1910';
+      input.max = '2050';
+      input.placeholder = 'Enter year';
+      dropDown.style.display = 'none';
+      break;
     default:
       input.type = 'text';
-      input.placeholder = `Enter ${searchType === 'year' ? 'year' : 'show'}`;
-      inputLabel.textContent = 'Search';
+      input.placeholder = `Enter show`;
       dropDown.style.display = 'none';
       break;
   }
 
   submitBtn.type = 'submit';
+  submitBtn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>`;
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     console.log(e);
     const searchBox = document.getElementById(e.target[0].id);
-    const countrySel = document.querySelector('select');
+    const countrySel = document.getElementById('country-select');
     console.log(searchBox.value);
 
     switch (searchType) {
@@ -193,14 +205,16 @@ function renderSearchForm(searchType) {
           filterShowsByTimeframe(searchBox.value),
           `Shows from ${searchBox.value}`
         );
+        form.reset();
         break;
       default:
         fetchQuery(searchBox.value);
+        form.reset();
         break;
     }
   });
 
-  form.append(inputLabel, input, dropDown, submitBtn);
+  form.append(input, dropDown, submitBtn);
   formContainer.append(form);
 }
 
@@ -275,7 +289,9 @@ function displayShowInfo(showInfo, epData) {
 
   const showRating = document.createElement('p');
   showRating.className = 'show-rating';
-  showRating.textContent = `Rating: ${showInfo.rating.average}`;
+  showRating.textContent = `Rating: ${
+    showInfo.rating.average !== null ? showInfo.rating.average : '-'
+  }`;
 
   showTextContainer.append(showTitle, showSummary, showRating);
 
@@ -283,9 +299,18 @@ function displayShowInfo(showInfo, epData) {
   resultsSection.appendChild(showInfoContainer);
 
   //Render the episodes
+  let showSeasons = [];
 
-  const numSeasons = epData[epData.length - 1].season;
-  console.log(numSeasons);
+  epData.forEach((ep) => {
+    if (!showSeasons.includes(ep.season)) {
+      showSeasons.push(ep.season);
+    }
+  });
+
+  console.log(showSeasons);
+
+  // const numSeasons = showSeasons.length;
+  // console.log(numSeasons);
 
   const episodesContainer = document.createElement('div');
   episodesContainer.id = 'episodes-container';
@@ -296,18 +321,20 @@ function displayShowInfo(showInfo, epData) {
   episodesHeading.className = 'episodes-heading';
   episodesContainer.appendChild(episodesHeading);
 
-  for (let i = 1; i <= numSeasons; i++) {
+  showSeasons.forEach((season) => {
     //create a container for each season
+    console.log(season);
     let seasonContainer = document.createElement('details');
     seasonContainer.className = `season-container`;
-    seasonContainer.id = `season-${i}`;
+    seasonContainer.id = `season-${season}`;
     let seasonTitle = document.createElement('summary');
-    seasonTitle.textContent = `Season ${i}`;
+    seasonTitle.textContent = `Season ${season}`;
     seasonContainer.appendChild(seasonTitle);
 
     //create an element for each episode
     let seasonEpisodes = epData.filter((episode) => {
-      return episode.season === i;
+      // console.log(episode);
+      return episode.season === season;
     });
 
     for (let episode of seasonEpisodes) {
@@ -335,7 +362,7 @@ function displayShowInfo(showInfo, epData) {
     }
 
     episodesContainer.appendChild(seasonContainer);
-  }
+  });
 
   resultsSection.appendChild(episodesContainer);
 }
@@ -357,8 +384,21 @@ function displaySchedule(data, dateFormatted) {
     const tableRow = document.createElement('tr');
     const timeslot = document.createElement('td');
     timeslot.textContent = result.airtime;
+    const network = document.createElement('td');
+
+    network.textContent =
+      result.show.network !== null ? result.show.network.name : 'N/A';
     const showTitleCell = document.createElement('td');
+    showTitleCell.className = 'show-title-cell';
+    const titleCellContainer = document.createElement('div');
+    titleCellContainer.className = 'title-cell-container';
     const showTitle = document.createElement('p');
+    const showImg = document.createElement('img');
+    showImg.className = 'schedule-show-img';
+    showImg.src =
+      result.show.image !== null
+        ? result.show.image.medium
+        : (showImg.style.display = 'none');
     showTitle.textContent = result.show.name;
     showTitle.className = 'schedule-show-title';
     showTitle.addEventListener('click', () => {
@@ -366,10 +406,11 @@ function displaySchedule(data, dateFormatted) {
       clearContainer(resultsSection);
       clearContainer(menuContainer);
     });
-    showTitleCell.appendChild(showTitle);
+    titleCellContainer.append(showTitle, showImg);
+    showTitleCell.append(titleCellContainer);
     const showDescription = document.createElement('td');
     showDescription.innerHTML = result.summary;
-    tableRow.append(timeslot, showTitle, showDescription);
+    tableRow.append(timeslot, network, showTitleCell, showDescription);
     scheduleTable.appendChild(tableRow);
   });
   resultsSection.appendChild(scheduleTable);

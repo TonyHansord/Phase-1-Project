@@ -41,7 +41,8 @@ const db = 'http://localhost:3000';
 
 const resultsSection = document.getElementById('results-section');
 const menuContainer = document.getElementById('filter-container');
-const searchTypeRadios = document.querySelectorAll('input[name="search-type"]');
+const searchTypes = document.getElementById('search-types');
+const searchOptions = document.querySelectorAll('option.search-option');
 
 const allShows = [];
 
