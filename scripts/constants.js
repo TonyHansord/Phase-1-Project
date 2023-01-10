@@ -37,7 +37,7 @@ const showGenres = [
   'Western',
 ];
 
-const db = 'http://localhost:3000';
+const db = 'https://project-1-server.onrender.com';
 
 const resultsSection = document.getElementById('results-section');
 const menuContainer = document.getElementById('filter-container');
