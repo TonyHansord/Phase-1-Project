@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   fetchAllShows();
+
   showTopFifty();
 
   const mainheading = document.getElementById('main-heading');
@@ -78,19 +79,35 @@ function populateDecadeArrays() {
   twoThousandTensShows = filterShowsByTimeframe('201');
 }
 
+let done = 0;
+function fetchPage(page) {
+  fetch(`https://api.tvmaze.com/shows?page=${page}`)
+    .then((res) => {
+      return res.json();
+    })
+    .then((shows) => {
+      shows.forEach((show) => {
+        allShows.push(show);
+      });
+      done++;
+      console.log(done);
+      if (done === 265) {
+        console.log(`all done`);
+        // console.log(allShows.length);
+        showFilterSortMenu(allShows);
+        populateDecadeArrays();
+      }
+      console.log(`page ${page} done`);
+    })
+    .catch((err) => {
+      console.log(err);
+      fetchPage(page);
+    });
+}
+
 function fetchAllShows() {
   for (let i = 0; i < 265; i++) {
-    fetch(`https://api.tvmaze.com/shows?page=${i}`)
-      .then((res) => res.json())
-      .then((shows) => {
-        shows.forEach((show) => {
-          allShows.push(show);
-        });
-        if (i === 264) {
-          showFilterSortMenu(allShows);
-          populateDecadeArrays();
-        }
-      });
+    fetchPage(i);
   }
 }
 
@@ -104,7 +121,7 @@ function fetchQuery(query) {
 
   const searchResults = allShows.filter((show) => {
     if (show['name'] !== null) {
-      return show['name'].startsWith(query);
+      return show['name'].toLowerCase().includes(query.toLowerCase());
     }
   });
 
