@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  fetchAllShows();
-
   showTopFifty();
+  fetchAllShows();
 
   const mainheading = document.getElementById('main-heading');
   mainheading.addEventListener('click', () => {
