@@ -59,7 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function showTopFifty() {
-  fetch(`${db}/topfifty`)
+  fetch(`${db}/topfifty`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    mode: 'cors',
+  })
     .then((res) => res.json())
     .then((topFifty) => {
       console.log(topFifty);
@@ -464,6 +470,13 @@ function filterResultsByGenre(data, genre) {
   });
 }
 
+function filterResultsByCountry(data, country) {
+  return data.filter((show) => {
+    return (
+      show.network !== null && show.network.country.code === country.countryCode
+    );
+  });
+}
 // Sort functions
 
 function sortByNameOrYear(data, sortType) {
@@ -499,6 +512,24 @@ function showFilterSortMenu(data, heading = 'Results') {
   const genreFilter = document.createElement('select');
   genreFilter.id = 'genre-filter';
   const genreFilterLabel = document.createElement('label');
+
+  const countryFilterLabel = document.createElement('label');
+  const countryDropDown = document.createElement('select');
+  countryDropDown.id = 'filter-country-select';
+  showCountry.forEach((country) => {
+    const option = document.createElement('option');
+    option.id = country.countryCode;
+    option.value = country.countryCode;
+    option.textContent = country.countryName;
+    countryDropDown.addEventListener('change', (e) => {
+      const filteredData = filterResultsByCountry(data, country);
+      results = filteredData;
+      renderResults(results, heading);
+    });
+    countryDropDown.appendChild(option);
+  });
+  countryFilterLabel.htmlFor = 'filter-country-select';
+  countryFilterLabel.textContent = 'Country';
 
   showGenres.forEach((genre) => {
     const genreMenuOption = document.createElement('option');
@@ -541,7 +572,14 @@ function showFilterSortMenu(data, heading = 'Results') {
     sortMenu.appendChild(sortMenuOption);
   });
 
-  menuContainer.append(genreFilterLabel, genreFilter, sortMenuLabel, sortMenu);
+  menuContainer.append(
+    countryFilterLabel,
+    countryDropDown,
+    genreFilterLabel,
+    genreFilter,
+    sortMenuLabel,
+    sortMenu
+  );
 }
 //callback function to render show information
 // fetch data for specific show using its ID
