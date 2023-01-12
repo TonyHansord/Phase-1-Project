@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+  console.log(`in domcontentloaded`);
+
   showTopFifty();
   fetchAllShows();
 
@@ -59,13 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function showTopFifty() {
-  fetch(`${db}/topfifty`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    mode: 'cors',
-  })
+  fetch(`${db}/topfifty`)
     .then((res) => res.json())
     .then((topFifty) => {
       console.log(topFifty);
