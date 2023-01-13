@@ -1,14 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-  console.log(`in domcontentloaded`);
-
   showTopFifty();
-  fetchAllShows();
+  // fetchAllShows();
 
   const mainheading = document.getElementById('main-heading');
   mainheading.addEventListener('click', () => {
     showTopFifty();
     showFilterSortMenu(allShows);
   });
+
+  const watchListBtn = document.getElementById('watchlist-btn');
+  watchListBtn.addEventListener('click', () => {
+    fetchWatchList();
+    renderResults(watchList, 'Watch List');
+  });
+
   const decadeBtns = document.querySelectorAll('.decade-btn');
 
   decadeBtns.forEach((btn) => {
@@ -65,8 +70,49 @@ function showTopFifty() {
     .then((res) => res.json())
     .then((topFifty) => {
       console.log(topFifty);
+      fetchWatchList();
       showFilterSortMenu(topFifty);
       renderResults(topFifty, 'Top 50 Shows');
+      fetchAllShows();
+    });
+}
+
+function addToWatchList(show) {
+  fetch(`${db}/watchlist`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(show),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+    });
+}
+
+function removeFromWatchList(show) {
+  fetch(`${db}/watchlist/${show.id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(show),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+      fetchWatchList();
+    });
+}
+
+function fetchWatchList() {
+  console.log('in fetchWatchList');
+  fetch(`${db}/watchlist`)
+    .then((res) => res.json())
+    .then((list) => {
+      console.log(list);
+      watchList = list;
     });
 }
 
@@ -311,7 +357,37 @@ function displayShowInfo(showInfo, epData) {
     showInfo.rating.average !== null ? showInfo.rating.average : '-'
   }`;
 
-  showTextContainer.append(showTitle, showSummary, showRating);
+  const addToWatchListBtn = document.createElement('button');
+
+  console.log(watchList);
+  console.log(watchList.some((show) => show['id'] === showInfo['id']));
+
+  if (watchList.some((show) => show['id'] === showInfo['id'])) {
+    addToWatchListBtn.className = 'remove-watchlist-btn';
+    addToWatchListBtn.textContent = 'Remove from watchlist';
+  } else {
+    addToWatchListBtn.className = 'add-watchlist-btn';
+    addToWatchListBtn.textContent = 'Add to watchlist';
+  }
+  addToWatchListBtn.addEventListener('click', () => {
+    if (addToWatchListBtn.textContent === 'Add to watchlist') {
+      watchList.push(showInfo);
+      addToWatchList(showInfo);
+      addToWatchListBtn.className = 'remove-watchlist-btn';
+      addToWatchListBtn.textContent = 'Remove from watchlist';
+    } else {
+      removeFromWatchList(showInfo);
+      addToWatchListBtn.className = 'add-watchlist-btn';
+      addToWatchListBtn.textContent = 'Add to watchlist';
+    }
+  });
+
+  showTextContainer.append(
+    showTitle,
+    showSummary,
+    showRating,
+    addToWatchListBtn
+  );
 
   showInfoContainer.append(showImg, showTextContainer);
   resultsSection.appendChild(showInfoContainer);
@@ -465,14 +541,6 @@ function filterResultsByGenre(data, genre) {
     return show.genres.includes(genre);
   });
 }
-
-function filterResultsByCountry(data, country) {
-  return data.filter((show) => {
-    return (
-      show.network !== null && show.network.country.code === country.countryCode
-    );
-  });
-}
 // Sort functions
 
 function sortByNameOrYear(data, sortType) {
@@ -508,24 +576,6 @@ function showFilterSortMenu(data, heading = 'Results') {
   const genreFilter = document.createElement('select');
   genreFilter.id = 'genre-filter';
   const genreFilterLabel = document.createElement('label');
-
-  const countryFilterLabel = document.createElement('label');
-  const countryDropDown = document.createElement('select');
-  countryDropDown.id = 'filter-country-select';
-  showCountry.forEach((country) => {
-    const option = document.createElement('option');
-    option.id = country.countryCode;
-    option.value = country.countryCode;
-    option.textContent = country.countryName;
-    countryDropDown.addEventListener('change', (e) => {
-      const filteredData = filterResultsByCountry(data, country);
-      results = filteredData;
-      renderResults(results, heading);
-    });
-    countryDropDown.appendChild(option);
-  });
-  countryFilterLabel.htmlFor = 'filter-country-select';
-  countryFilterLabel.textContent = 'Country';
 
   showGenres.forEach((genre) => {
     const genreMenuOption = document.createElement('option');
@@ -568,14 +618,7 @@ function showFilterSortMenu(data, heading = 'Results') {
     sortMenu.appendChild(sortMenuOption);
   });
 
-  menuContainer.append(
-    countryFilterLabel,
-    countryDropDown,
-    genreFilterLabel,
-    genreFilter,
-    sortMenuLabel,
-    sortMenu
-  );
+  menuContainer.append(genreFilterLabel, genreFilter, sortMenuLabel, sortMenu);
 }
 //callback function to render show information
 // fetch data for specific show using its ID

@@ -37,6 +37,7 @@ const showGenres = [
   'Western',
 ];
 
+const localdb = 'http://localhost:3000';
 const db = 'https://project-1-server.onrender.com';
 
 const resultsSection = document.getElementById('results-section');
@@ -53,3 +54,5 @@ let eightiesShows = [];
 let ninetiesShows = [];
 let twoThousandsShows = [];
 let twoThousandTensShows = [];
+
+let watchList = [];
