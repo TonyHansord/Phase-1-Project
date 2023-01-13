@@ -8,7 +8,6 @@ const showCountry = [
 const showGenres = [
   '',
   'Action',
-  'Adult',
   'Adventure',
   'Anime',
   'Children',

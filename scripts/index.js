@@ -1,7 +1,7 @@
-document.addEventListener('DOMContentLoaded', () => {
-  showTopFifty();
-  // fetchAllShows();
+showTopFifty();
+fetchAllShows();
 
+document.addEventListener('DOMContentLoaded', () => {
   const mainheading = document.getElementById('main-heading');
   mainheading.addEventListener('click', () => {
     showTopFifty();
@@ -71,9 +71,8 @@ function showTopFifty() {
     .then((topFifty) => {
       console.log(topFifty);
       fetchWatchList();
-      showFilterSortMenu(topFifty);
+      showFilterSortMenu(allShows);
       renderResults(topFifty, 'Top 50 Shows');
-      fetchAllShows();
     });
 }
 
@@ -467,7 +466,7 @@ function displaySchedule(data, dateFormatted) {
   resultsSection.className = 'schedule';
 
   const scheduleHeading = document.createElement('h2');
-  scheduleHeading.className = 'schedule-heading';
+  scheduleHeading.className = 'results-heading';
   scheduleHeading.textContent = `Schedule for  ${dateFormatted}`;
 
   resultsSection.appendChild(scheduleHeading);

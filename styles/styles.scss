@@ -38,6 +38,10 @@ button:hover {
   background-color: #e05252;
 }
 
+.remove-watchlist-btn:hover {
+  background-color: rgba(224, 82, 82, 0.658);
+}
+
 #header {
   height: 100%;
   font-size: 2rem;
@@ -205,8 +209,9 @@ input[type='number'] {
   }
 
   .episode-image {
-    width: 100%;
-    height: 100%;
+    width: 50%;
+    height: 50%;
+    aspect-ratio: 1/1;
     object-fit: cover;
   }
 
@@ -344,6 +349,14 @@ tr {
 tr:nth-child(even) {
   background-color: $secondary-color;
   color: $primary-color;
+
+  .schedule-show-title {
+    background-color: $secondary-color;
+    color: $primary-color;
+  }
+  .schedule-show-title:hover {
+    color: $dark-accent;
+  }
 }
 table > tr > :nth-child(3) {
   width: 25%;
