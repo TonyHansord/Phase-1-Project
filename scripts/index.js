@@ -167,7 +167,10 @@ function fetchQuery(query) {
 
   const searchResults = allShows.filter((show) => {
     if (show['name'] !== null) {
-      return show['name'].toLowerCase().includes(query.toLowerCase());
+      return show['name']
+        .toLowerCase()
+        .replace('.', '')
+        .includes(query.toLowerCase());
     }
   });
 
