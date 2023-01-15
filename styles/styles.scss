@@ -1,10 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+//#REGION - SCSS VARIABLES
 $primary-color: #f5f5f5;
 $secondary-color: rgba(80, 117, 132, 0.999);
+$tertiary-color: rgba(62, 66, 74, 0.983);
 $dark-accent: rgb(41, 44, 50);
 $main-font: 'Inter Tight', sans-serif;
 
-//button mixin
+//#endregion
+
+//#REGION - SCSS MIXINS
+//#region button mixin
 @mixin button($color, $hover-color) {
   background-color: $color;
   border: solid 1px $primary-color;
@@ -18,6 +24,10 @@ $main-font: 'Inter Tight', sans-serif;
     background-color: $hover-color;
   }
 }
+//#endregion
+//#endregion
+
+//#REGION - GLOBAL STYLES
 
 * {
   box-sizing: border-box;
@@ -44,6 +54,34 @@ button {
   @include button(transparent, $secondary-color);
 }
 
+select {
+  width: 10rem;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0 1rem;
+  font-size: 1.25rem;
+}
+
+//#endregion
+
+//#REGION - NAVIGATION STYLES
+
+#nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 100%;
+  padding: 1rem;
+  background-color: $tertiary-color;
+
+  * {
+    background-color: transparent;
+  }
+}
+
+//#region watchlist styles
+
 .remove-watchlist-btn {
   background-color: #e05252;
 }
@@ -51,6 +89,9 @@ button {
 .remove-watchlist-btn:hover {
   background-color: rgba(224, 82, 82, 0.658);
 }
+
+//#endregion
+//#region header styles
 
 #header {
   height: 100%;
@@ -67,14 +108,9 @@ button {
   }
 }
 
-select {
-  height: 2rem;
-  width: 10rem;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0 1rem;
-  font-size: 1.25rem;
-}
+//#endregion
+
+//#region search form styles
 
 #search-div {
   display: flex;
@@ -103,6 +139,17 @@ form {
     width: 15rem;
   }
 
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
   #country-select {
     width: 7rem;
   }
@@ -116,35 +163,36 @@ form {
     }
   }
 }
-#nav-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  height: 100%;
-  padding: 1rem;
-}
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+//#endregion
 
-input[type='number'] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
+//#region decade button styles
 
 #decade-btn-container {
-  display: flex;
+  display: grid;
   align-items: center;
   justify-content: center;
+  grid-template-columns: 30% 30% 30%;
   gap: 1rem;
 }
 
 .decade-btn {
   @include button(transparent, $secondary-color);
+}
+
+//#endregion
+
+//#endregion
+
+//#REGION - RESULTS STYLES
+
+#filter-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
 }
 
 .results-heading {
@@ -180,6 +228,52 @@ input[type='number'] {
   background-color: $dark-accent;
 }
 
+//#region result card styles
+
+.result-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  bottom: 0;
+  right: 0;
+  transition: bottom 0.5s ease, right 0.5s ease-in-out;
+  cursor: pointer;
+
+  .show-title {
+    font-weight: 300;
+    padding: 1rem;
+    font-size: 1.5rem;
+    display: none;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    width: 100%;
+    bottom: 0;
+  }
+
+  .show-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.result-container:hover {
+  bottom: -5px;
+  right: -5px;
+  .show-title {
+    display: inline;
+  }
+}
+
+//#endregion
+
+//#endregion
+
+//#REGION SEASON STYLES
 #results-section.episodes {
   display: grid;
   flex-direction: column;
@@ -251,54 +345,6 @@ input[type='number'] {
   background-color: $secondary-color;
 }
 
-.result-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  bottom: 0;
-  right: 0;
-  transition: bottom 0.5s ease, right 0.5s ease-in-out;
-  cursor: pointer;
-
-  .show-title {
-    font-weight: 300;
-    padding: 1rem;
-    font-size: 1.5rem;
-    display: none;
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    width: 100%;
-    bottom: 0;
-  }
-
-  .show-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.result-container:hover {
-  bottom: -5px;
-  right: -5px;
-  .show-title {
-    display: inline;
-  }
-}
-
-#filter-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem;
-}
-
 .show-info-container {
   display: flex;
   align-items: center;
@@ -329,6 +375,10 @@ input[type='number'] {
     }
   }
 }
+
+//#endregion
+
+//#REGION SCHEDULE PAGE STYLES
 
 table,
 th,
@@ -402,3 +452,5 @@ table > tr > :nth-child(2) {
   height: 30%;
   object-fit: cover;
 }
+
+//#endregion

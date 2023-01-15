@@ -1,80 +1,19 @@
 showTopFifty();
 fetchAllShows();
 
-document.addEventListener('DOMContentLoaded', () => {
-  const mainheading = document.getElementById('main-heading');
-  mainheading.addEventListener('click', () => {
-    showTopFifty();
-    showFilterSortMenu(allShows);
-  });
-
-  const watchListBtn = document.getElementById('watchlist-btn');
-  watchListBtn.addEventListener('click', () => {
-    fetchWatchList();
-    renderResults(watchList, 'Watch List');
-  });
-
-  const decadeBtns = document.querySelectorAll('.decade-btn');
-
-  decadeBtns.forEach((btn) => {
-    btn.addEventListener('click', (event) => {
-      let decadeData;
-
-      switch (event.target.id) {
-        case '1950s':
-          decadeData = fiftiesShows;
-          break;
-        case '1960s':
-          decadeData = sixtiesShows;
-          break;
-        case '1970s':
-          decadeData = seventiesShows;
-          break;
-        case '1980s':
-          decadeData = eightiesShows;
-          break;
-        case '1990s':
-          decadeData = ninetiesShows;
-          break;
-        case '2000s':
-          decadeData = twoThousandsShows;
-          break;
-        case '2010s':
-          decadeData = twoThousandTensShows;
-          break;
-      }
-
-      let resultsHeading = `Shows from the ${event.target.id}`;
-
-      showFilterSortMenu(decadeData, resultsHeading);
-      renderResults(decadeData, resultsHeading);
-    });
-  });
-  renderSearchForm(searchOptions[0].id);
-
-  searchOptions.forEach(() => {
-    searchTypes.addEventListener('change', (event) => {
-      console.log(event.target);
-      renderSearchForm(event.target.value);
-    });
-
-    // searchTypes.addEventListener('change', (event) => {
-    //   console.log(event.target);
-
-    //   renderSearchForm(event.target.id);
-  });
-});
-
 //#region FETCH FUNCTIONS
 
 function showTopFifty() {
+  renderResults(topFiftyShows, 'Top 50 Shows');
+
   fetch(`${db}/topfifty`)
     .then((res) => res.json())
     .then((topFifty) => {
       console.log(topFifty);
       fetchWatchList();
       showFilterSortMenu(allShows);
-      renderResults(topFifty, 'Top 50 Shows');
+      topFiftyShows = topFifty;
+      renderResults(topFiftyShows, 'Top 50 Shows');
     });
 }
 
@@ -149,6 +88,7 @@ function fetchAllShows() {
   }
 }
 
+// fetch data for specific show using its ID
 function fetchEpisodes(showInfo) {
   fetch(`https://api.tvmaze.com/shows/${showInfo.id}/episodes`)
     .then((res) => res.json())
@@ -162,16 +102,9 @@ function fetchSchedule(country, date, dateFormatted) {
 }
 
 //#endregion
-
-//GET data from API based on what is entered in search box
-// eg:`https://api.tvmaze.com/search/shows?%q=${value of search box}'`;
-
-//clear any results currently on the page
-//render the results of the search query
-//??? limit to only show 20 results per page?
-
+//#region Data Manipulation Functions
 function populateDecadeArrays() {
-  fiftiesShows = filterShowsByTimeframe('195');
+  // fiftiesShows = filterShowsByTimeframe('195');
   sixtiesShows = filterShowsByTimeframe('196');
   seventiesShows = filterShowsByTimeframe('197');
   eightiesShows = filterShowsByTimeframe('198');
@@ -179,17 +112,19 @@ function populateDecadeArrays() {
   twoThousandsShows = filterShowsByTimeframe('200');
   twoThousandTensShows = filterShowsByTimeframe('201');
 }
+//#endregion
+//#region RENDER FUNCTIONS
 
-//RENDER FUNCTIONS
-
-const clearContainer = (element) => {
+//clear any results currently on the page
+function clearContainer(element) {
   let child = element.lastElementChild;
   while (child) {
     element.removeChild(child);
     child = element.lastElementChild;
   }
-};
+}
 
+//render the selected search form
 function renderSearchForm(searchType) {
   const formContainer = document.getElementById('form-div');
   formContainer.innerHTML = '';
@@ -269,6 +204,7 @@ function renderSearchForm(searchType) {
   formContainer.append(form);
 }
 
+//render the selected data
 function renderResults(data, heading = 'Results') {
   clearContainer(resultsSection);
 
@@ -317,6 +253,7 @@ function renderResults(data, heading = 'Results') {
   resultsSection.appendChild(resultsContainer);
 }
 
+//render the selected show information and episodes
 function displayShowInfo(showInfo, epData) {
   console.log(showInfo);
 
@@ -448,15 +385,10 @@ function displayShowInfo(showInfo, epData) {
   resultsSection.appendChild(episodesContainer);
 }
 
+//render the filter and sort menu
 function showFilterSortMenu(data, heading = 'Results') {
   let results = data;
   clearContainer(menuContainer);
-
-  const filterHeadingContainer = document.createElement('div');
-
-  const filterHeading = document.createElement('h2');
-  filterHeading.textContent = 'Filter';
-  filterHeadingContainer.append(filterHeading);
 
   const genreFilter = document.createElement('select');
   genreFilter.id = 'genre-filter';
@@ -554,8 +486,8 @@ function displaySchedule(data, dateFormatted) {
   });
   resultsSection.appendChild(scheduleTable);
 }
-
-// Filter functions
+//#endregion
+//#region Filter functions
 
 function showYears(min, max) {
   let years = [];
@@ -604,7 +536,8 @@ function filterResultsByGenre(data, genre) {
     return show.genres.includes(genre);
   });
 }
-// Sort functions
+//#endregion
+//#region Sort functions
 
 function sortByNameOrYear(data, sortType) {
   let key = sortType === 'Name' ? 'name' : 'premiered';
@@ -626,6 +559,70 @@ function sortShowsByRating(data) {
   });
 }
 
-//callback function to render show information
-// fetch data for specific show using its ID
+//#endregion
+
+document.addEventListener('DOMContentLoaded', () => {
+  const mainheading = document.getElementById('main-heading');
+  mainheading.addEventListener('click', () => {
+    showTopFifty();
+    showFilterSortMenu(allShows);
+  });
+
+  const watchListBtn = document.getElementById('watchlist-btn');
+  watchListBtn.addEventListener('click', () => {
+    fetchWatchList();
+    renderResults(watchList, 'Watch List');
+  });
+
+  const decadeBtns = document.querySelectorAll('.decade-btn');
+
+  decadeBtns.forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+      let decadeData;
+
+      switch (event.target.id) {
+        case '1950s':
+          decadeData = fiftiesShows;
+          break;
+        case '1960s':
+          decadeData = sixtiesShows;
+          break;
+        case '1970s':
+          decadeData = seventiesShows;
+          break;
+        case '1980s':
+          decadeData = eightiesShows;
+          break;
+        case '1990s':
+          decadeData = ninetiesShows;
+          break;
+        case '2000s':
+          decadeData = twoThousandsShows;
+          break;
+        case '2010s':
+          decadeData = twoThousandTensShows;
+          break;
+      }
+
+      let resultsHeading = `Shows from the ${event.target.id}`;
+
+      showFilterSortMenu(decadeData, resultsHeading);
+      renderResults(decadeData, resultsHeading);
+    });
+  });
+  renderSearchForm(searchOptions[0].id);
+
+  searchOptions.forEach(() => {
+    searchTypes.addEventListener('change', (event) => {
+      console.log(event.target);
+      renderSearchForm(event.target.value);
+    });
+
+    // searchTypes.addEventListener('change', (event) => {
+    //   console.log(event.target);
+
+    //   renderSearchForm(event.target.id);
+  });
+});
+
 // also display list of episodes
