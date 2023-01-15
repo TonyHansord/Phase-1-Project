@@ -65,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+//#region FETCH FUNCTIONS
+
 function showTopFifty() {
   fetch(`${db}/topfifty`)
     .then((res) => res.json())
@@ -115,16 +117,6 @@ function fetchWatchList() {
     });
 }
 
-function populateDecadeArrays() {
-  fiftiesShows = filterShowsByTimeframe('195');
-  sixtiesShows = filterShowsByTimeframe('196');
-  seventiesShows = filterShowsByTimeframe('197');
-  eightiesShows = filterShowsByTimeframe('198');
-  ninetiesShows = filterShowsByTimeframe('199');
-  twoThousandsShows = filterShowsByTimeframe('200');
-  twoThousandTensShows = filterShowsByTimeframe('201');
-}
-
 let done = 0;
 function fetchPage(page) {
   fetch(`https://api.tvmaze.com/shows?page=${page}`)
@@ -157,31 +149,6 @@ function fetchAllShows() {
   }
 }
 
-//Get value of searchbox when submit button pressed
-
-//GET data from API based on what is entered in search box
-// eg:`https://api.tvmaze.com/search/shows?%q=${value of search box}'`;
-
-function fetchQuery(query) {
-  console.log(`in fetchQuery`);
-
-  const searchResults = allShows.filter((show) => {
-    if (show['name'] !== null) {
-      return show['name']
-        .toLowerCase()
-        .replace('.', '')
-        .includes(query.toLowerCase());
-    }
-  });
-
-  const numResults = searchResults.length;
-
-  const sortedData = sortShowsByRating(searchResults);
-
-  showFilterSortMenu(sortedData);
-  renderResults(sortedData, `${numResults} results for ${query}`);
-}
-
 function fetchEpisodes(showInfo) {
   fetch(`https://api.tvmaze.com/shows/${showInfo.id}/episodes`)
     .then((res) => res.json())
@@ -194,9 +161,26 @@ function fetchSchedule(country, date, dateFormatted) {
     .then((schedule) => displaySchedule(schedule, dateFormatted));
 }
 
+//#endregion
+
+//GET data from API based on what is entered in search box
+// eg:`https://api.tvmaze.com/search/shows?%q=${value of search box}'`;
+
 //clear any results currently on the page
 //render the results of the search query
 //??? limit to only show 20 results per page?
+
+function populateDecadeArrays() {
+  fiftiesShows = filterShowsByTimeframe('195');
+  sixtiesShows = filterShowsByTimeframe('196');
+  seventiesShows = filterShowsByTimeframe('197');
+  eightiesShows = filterShowsByTimeframe('198');
+  ninetiesShows = filterShowsByTimeframe('199');
+  twoThousandsShows = filterShowsByTimeframe('200');
+  twoThousandTensShows = filterShowsByTimeframe('201');
+}
+
+//RENDER FUNCTIONS
 
 const clearContainer = (element) => {
   let child = element.lastElementChild;
@@ -254,6 +238,7 @@ function renderSearchForm(searchType) {
 
   submitBtn.type = 'submit';
   submitBtn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>`;
+  submitBtn.className = 'search-btn';
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     console.log(e);
@@ -274,7 +259,7 @@ function renderSearchForm(searchType) {
         form.reset();
         break;
       default:
-        fetchQuery(searchBox.value);
+        filterSearchResults(searchBox.value);
         form.reset();
         break;
     }
@@ -463,6 +448,64 @@ function displayShowInfo(showInfo, epData) {
   resultsSection.appendChild(episodesContainer);
 }
 
+function showFilterSortMenu(data, heading = 'Results') {
+  let results = data;
+  clearContainer(menuContainer);
+
+  const filterHeadingContainer = document.createElement('div');
+
+  const filterHeading = document.createElement('h2');
+  filterHeading.textContent = 'Filter';
+  filterHeadingContainer.append(filterHeading);
+
+  const genreFilter = document.createElement('select');
+  genreFilter.id = 'genre-filter';
+  const genreFilterLabel = document.createElement('label');
+
+  showGenres.forEach((genre) => {
+    const genreMenuOption = document.createElement('option');
+    genreMenuOption.id = genre.toLowerCase();
+    genreMenuOption.value = genre;
+    genreMenuOption.textContent = genre;
+    genreFilter.addEventListener('change', (e) => {
+      const filteredData =
+        e.target.value !== ''
+          ? filterResultsByGenre(data, e.target.value)
+          : data;
+      results = filteredData;
+      renderResults(results, heading);
+    });
+    genreFilter.appendChild(genreMenuOption);
+  });
+  genreFilterLabel.htmlFor = 'genre-filter';
+  genreFilterLabel.textContent = 'Genre';
+
+  const sortMenu = document.createElement('select');
+  sortMenu.id = 'sort-menu';
+  const sortMenuLabel = document.createElement('label');
+  sortMenuLabel.htmlFor = 'sort-menu';
+  sortMenuLabel.textContent = 'Sort By';
+
+  const sortMenuOptions = ['', 'Name', 'Rating', 'Year'];
+  sortMenuOptions.forEach((option) => {
+    const sortMenuOption = document.createElement('option');
+    sortMenuOption.id = option.toLowerCase();
+    sortMenuOption.value = option;
+    sortMenuOption.textContent = option;
+    sortMenu.addEventListener('change', (e) => {
+      const dataCopy = [...results];
+      const sortedData =
+        e.target.value === 'Rating'
+          ? sortShowsByRating(dataCopy)
+          : sortByNameOrYear(dataCopy, e.target.value);
+      renderResults(sortedData, heading);
+    });
+    sortMenu.appendChild(sortMenuOption);
+  });
+
+  menuContainer.append(genreFilterLabel, genreFilter, sortMenuLabel, sortMenu);
+}
+
 function displaySchedule(data, dateFormatted) {
   console.log(data);
   clearContainer(resultsSection);
@@ -538,6 +581,24 @@ function filterShowsByTimeframe(timeFrame) {
   });
 }
 
+function filterSearchResults(query) {
+  const searchResults = allShows.filter((show) => {
+    if (show['name'] !== null) {
+      return show['name']
+        .toLowerCase()
+        .replace('.', '')
+        .includes(query.toLowerCase());
+    }
+  });
+
+  const numResults = searchResults.length;
+
+  const sortedData = sortShowsByRating(searchResults);
+
+  showFilterSortMenu(sortedData);
+  renderResults(sortedData, `${numResults} results for ${query}`);
+}
+
 function filterResultsByGenre(data, genre) {
   return data.filter((show) => {
     return show.genres.includes(genre);
@@ -565,63 +626,6 @@ function sortShowsByRating(data) {
   });
 }
 
-function showFilterSortMenu(data, heading = 'Results') {
-  let results = data;
-  clearContainer(menuContainer);
-
-  const filterHeadingContainer = document.createElement('div');
-
-  const filterHeading = document.createElement('h2');
-  filterHeading.textContent = 'Filter';
-  filterHeadingContainer.append(filterHeading);
-
-  const genreFilter = document.createElement('select');
-  genreFilter.id = 'genre-filter';
-  const genreFilterLabel = document.createElement('label');
-
-  showGenres.forEach((genre) => {
-    const genreMenuOption = document.createElement('option');
-    genreMenuOption.id = genre.toLowerCase();
-    genreMenuOption.value = genre;
-    genreMenuOption.textContent = genre;
-    genreFilter.addEventListener('change', (e) => {
-      const filteredData =
-        e.target.value !== ''
-          ? filterResultsByGenre(data, e.target.value)
-          : data;
-      results = filteredData;
-      renderResults(results, heading);
-    });
-    genreFilter.appendChild(genreMenuOption);
-  });
-  genreFilterLabel.htmlFor = 'genre-filter';
-  genreFilterLabel.textContent = 'Genre';
-
-  const sortMenu = document.createElement('select');
-  sortMenu.id = 'sort-menu';
-  const sortMenuLabel = document.createElement('label');
-  sortMenuLabel.htmlFor = 'sort-menu';
-  sortMenuLabel.textContent = 'Sort By';
-
-  const sortMenuOptions = ['', 'Name', 'Rating', 'Year'];
-  sortMenuOptions.forEach((option) => {
-    const sortMenuOption = document.createElement('option');
-    sortMenuOption.id = option.toLowerCase();
-    sortMenuOption.value = option;
-    sortMenuOption.textContent = option;
-    sortMenu.addEventListener('change', (e) => {
-      const dataCopy = [...results];
-      const sortedData =
-        e.target.value === 'Rating'
-          ? sortShowsByRating(dataCopy)
-          : sortByNameOrYear(dataCopy, e.target.value);
-      renderResults(sortedData, heading);
-    });
-    sortMenu.appendChild(sortMenuOption);
-  });
-
-  menuContainer.append(genreFilterLabel, genreFilter, sortMenuLabel, sortMenu);
-}
 //callback function to render show information
 // fetch data for specific show using its ID
 // also display list of episodes
