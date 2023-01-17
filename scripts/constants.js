@@ -1,4 +1,4 @@
-const showSearch = `https://api.tvmaze.com/search/shows`;
+const showIndex = `https://api.tvmaze.com/shows?page=`;
 const scheduleSearch = `https://api.tvmaze.com/schedule?`;
 const showCountry = [
   { countryCode: 'US', countryName: 'USA' },

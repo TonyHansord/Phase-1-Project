@@ -58,7 +58,7 @@ function fetchWatchList() {
 
 let done = 0;
 function fetchPage(page) {
-  fetch(`https://api.tvmaze.com/shows?page=${page}`)
+  fetch(`${showIndex}${page}`)
     .then((res) => {
       return res.json();
     })
