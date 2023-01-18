@@ -11,3 +11,5 @@ For the JSON stretch deliverable, I included a feature to add a show to a watchl
 Challenges
 
 Perhaps the biggest challenge was getting all the shows from the API. It was necesary to get every show from the database, as the API does not allow for searching by year or decade. I was able to get all the shows by using a for loop to iterate through the pages of the API, and then using a forEach to iterate through the results of each page. I then pushed each show to an array, which I then used to filter the results in multiple ways. While I have now got this to work, it didnt always work first time and many of the pages of the API failed to load. So fixing this was a challenge. What I ended up doing was creating a function that would try to load an individual page, and if it failed, it would try again. I put this function inside a for loop, which would try to load each page.This worked well, and I was able to get all the shows from the API.
+
+Another challenge was filtering by year, in a way that it would return a result that was on air in that year, not just premiered or ended in that year
