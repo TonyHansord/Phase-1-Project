@@ -327,9 +327,6 @@ function displayShowInfo(showInfo, epData) {
 
   console.log(showSeasons);
 
-  // const numSeasons = showSeasons.length;
-  // console.log(numSeasons);
-
   const episodesContainer = document.createElement('div');
   episodesContainer.id = 'episodes-container';
   episodesContainer.className = 'episodes';
